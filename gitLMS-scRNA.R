@@ -152,7 +152,7 @@ dir.create("results/immune_analysis", showWarnings = FALSE)
   ok <- intersect(names(seurat_objects), names(qc_plots))
   if(length(ok) > 0) {
     p_s1 <- wrap_plots(c(qc_plots[ok], knee_plots[ok]), ncol=1) + plot_annotation(tag_levels="a")
-    ggsave("Figures/SingleCell/FigS1_QC.png", p_s1, width=11, height=3*length(ok)*2,  dpi=600, bg="white", limitsize=FALSE)
+    ggsave("Figures/SingleCell/FigureS1.png", p_s1, width=11, height=3*length(ok)*2,  dpi=600, bg="white", limitsize=FALSE)
   }
   # ====================  Harmony====================
   integrated_rds <- "Results/SingleCell/Integrated_v3_Harmony.rds"
@@ -245,7 +245,7 @@ dir.create("results/immune_analysis", showWarnings = FALSE)
                                out_dir="Results/SingleCell/inferCNV",
                                cluster_by_groups=TRUE, denoise=TRUE, HMM=FALSE,
                                num_threads=2)
-      cat(" figure5b cnv is saved after infercnv::run \n")
+      cat(" Figure5b cnv is saved after infercnv::run \n")
       rm(cnv_obj); gc()
     }
     txt_d <- "Results/SingleCell/inferCNV/infercnv.observations_denoised.txt"
@@ -295,7 +295,7 @@ dir.create("results/immune_analysis", showWarnings = FALSE)
   p_a3 <- VlnPlot(integrated, features="ACTA2", group.by="celltype_final", pt.size=0) +
     NoLegend() + ggtitle("ACTA2 by cell type") +
     theme(axis.text.x=element_text(angle=45,hjust=1), plot.title=element_text(hjust=0.5, face="bold"))
-  ggsave("Figures/SingleCell/Figure5d.png.png", p_a3, width = 8, height = 5, dpi = 600, bg = "white")
+  ggsave("Figures/SingleCell/Figure5d.png", p_a3, width = 8, height = 5, dpi = 600, bg = "white")
   df_v <- integrated@meta.data[!is.na(integrated$cnv_score), , drop = FALSE]
   p_a4 <- ggplot(df_v, aes(celltype_final, cnv_score, fill = celltype_final)) +
     geom_violin(scale = "width") +
@@ -305,10 +305,10 @@ dir.create("results/immune_analysis", showWarnings = FALSE)
     ggtitle("CNV burden (inferCNV)") +
     theme(axis.text.x = element_text(angle = 45, hjust = 1),
           plot.title = element_text(hjust = 0.5, face = "bold"))
-  ggsave("Figures/SingleCell/Figure5e.png.png", p_a4, width = 8, height = 5, dpi = 600, bg = "white")
+  ggsave("Figures/SingleCell/Figure5e.png", p_a4, width = 8, height = 5, dpi = 600, bg = "white")
   p_s2 <- DotPlot(integrated, features=unique(unlist(cell_markers)), group.by="celltype_final") +
     RotatedAxis() + ggtitle("Canonical markers")
-  ggsave("Figures/SingleCell/FigS2_Markers.png", p_s2, width=12, height=5, dpi=600, bg="white")
+  ggsave("Figures/SingleCell/FigureS2.png", p_s2, width=12, height=5, dpi=600, bg="white")
   mal_cells <- colnames(integrated)[integrated$celltype_final=="Malignant"]
   mal <- subset(integrated, cells=mal_cells)
   mal <- AddModuleScore(mal, features=list(c("ACTA2","MYH11","TAGLN","CNN1")), name="DIFF", ctrl=50, verbose=FALSE)

@@ -353,8 +353,8 @@ if ("TREM2" %in% colnames(surv_df)) {
     labs(x = "ACTA2 log2(TPM+1)", y = "TREM2 log2(TPM+1)",
          title = "TCGA-LMS: ACTA2 vs TREM2") +
     theme_bw()
-  ggsave(file.path(config$figure_dir, "Bulk_ACTA2_vs_TREM2.png"),
-         p_acta2_trem2, width = 5, height = 4, dpi = 300)
+  # ggsave(file.path(config$figure_dir, "Bulk_ACTA2_vs_TREM2.png"),
+  #        p_acta2_trem2, width = 5, height = 4, dpi = 300)
 }
 mac_cols <- grep("macrophage", colnames(immune_cells_filtered), ignore.case = TRUE, value = TRUE)
 if (length(mac_cols) == 0) {
@@ -492,8 +492,8 @@ if (exists("surv_df_immune")) {
         theme_classic(base_size = 12) +
         theme(plot.title = element_text(hjust = 0.5, face = "bold"),
               plot.subtitle = element_text(hjust = 0.5, size = 9))
-      ggsave(file.path(config$figure_dir, sprintf("Figure3F_ESTIMATE_ImmuneScore_%s.png", config$target_gene)),
-             plot = p_immune, width = 6.5, height = 5, dpi = 600, bg = "white")
+      # ggsave(file.path(config$figure_dir, sprintf("Figure3F_ESTIMATE_ImmuneScore_%s.png", config$target_gene)),
+      #        plot = p_immune, width = 6.5, height = 5, dpi = 600, bg = "white")
     }
     library(patchwork)
 

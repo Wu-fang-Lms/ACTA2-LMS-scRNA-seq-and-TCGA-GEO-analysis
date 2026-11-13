@@ -120,7 +120,6 @@ probe2sym <- AnnotationDbi::select(hgu133plus2.db,
                                    columns = "SYMBOL",
                                    keytype = "PROBEID")
 probe2sym <- probe2sym[!is.na(probe2sym$SYMBOL), ]
-
 expr_log <- log2(expr_matrix[probe2sym$PROBEID, ] + 1)
 rownames(expr_log) <- probe2sym$SYMBOL
 
@@ -136,7 +135,6 @@ lms_samples <- leiomyo_df$sample_id
 icb_mat <- expr_gene[icb_use, lms_samples]
 icb_z <- t(scale(t(icb_mat)))                    
 leiomyo_df$ICB_score <- colMeans(icb_z, na.rm = TRUE)
-
 med <- median(leiomyo_df$ACTA2_expr, na.rm = TRUE)
 leiomyo_df$ACTA2_group <- factor(ifelse(leiomyo_df$ACTA2_expr >= med, "High", "Low"),
                                  levels = c("Low", "High"))
@@ -232,7 +230,6 @@ geo_partial <- pcor.test(
 if (!dir.exists("data")) dir.create("data")
 saveRDS(leiomyo_df, file.path("data", "leiomyo_df_with_ESTIMATE.rds"))
 write.csv(leiomyo_df, file.path("data", "leiomyo_df_with_ESTIMATE.csv"), row.names = FALSE)
-# ============== 读取TCGA ESTIMATE结果 ===============
 tcga_estimate_path <- "D:/TCGA_Sarcoma_Analysis/ACTA2/results/immune_analysis/surv_df_immuneESTIMATE_Scores_ACTA2.csv"
 tcga_estimate <- read.csv(tcga_estimate_path)
 n_tcga <- sum(!is.na(tcga_estimate$gene_expr) & !is.na(tcga_estimate$immune_score))
@@ -255,7 +252,6 @@ n_gse <- nrow(valid_data)
 if (n_gse < 20) stop("样本不足")
 median_acta2 <- median(valid_data$ACTA2_expr)
 valid_data$ACTA2_group <- ifelse(valid_data$ACTA2_expr >= median_acta2, "High", "Low")
-# --- 免疫相关 ---
 gse_immune_spear <- cor.test(valid_data$ACTA2_expr, valid_data$immune_score,
                              method = "spearman", exact = FALSE)
 gse_immune_wilcox <- wilcox.test(immune_score ~ ACTA2_group, data = valid_data)
@@ -308,7 +304,6 @@ geo_plot_df <- data.frame(
   Dataset = "GSE21050"
 )
 combined_df <- rbind(tcga_plot_df, geo_plot_df)
-# --- 免疫评分散点图（双队列并排）---
 p_immune_scatter <- ggplot(combined_df, aes(x = ACTA2_expr, y = immune_score, color = Dataset)) +
   geom_point(alpha = 0.6, size = 2) +
   geom_smooth(method = "lm", se = TRUE, aes(fill = Dataset), alpha = 0.2) +
@@ -433,12 +428,12 @@ xcell_cache_file <- file.path(cache_dir, sprintf("GEO_xCell_corrected_%s.rds", d
 if (file.exists(xcell_cache_file)) {
   xcell_raw <- readRDS(xcell_cache_file)
 } else {
-  cat("  运行xCell算法（首次运行较慢）...\n")
+  cat("  运行xCell算法...\n")
   xcell_raw <- immunedeconv::deconvolute(
     lms_expr_filtered, 
     method = "xcell",
-    arrays = TRUE,  # 指定为微阵列数据
-    scale = TRUE    # 标准化
+    arrays = TRUE,  
+    scale = TRUE    
   )
   saveRDS(xcell_raw, xcell_cache_file)
 }
@@ -679,7 +674,6 @@ geo_comp$FDR_partial <- p.adjust(geo_comp$partial_p, method = "BH")
 write.csv(geo_comp, "D:/TCGA_Sarcoma_Analysis/ACTA2/output/GEO_compartment_purity_check.csv",
           row.names = FALSE)
 
-# ---- Communication genes: partial correlation controlling Macrophage ----
 key4 <- c("APOE", "TREM2", "TGFB1", "SPP1")
 res_comm_geo <- lapply(key4, function(g) {
   gx <- as.numeric(expr_gene[g, geo_pur$sample_id])
@@ -698,8 +692,6 @@ geo_comm <- do.call(rbind, res_comm_geo)
 geo_comm$FDR_partial <- p.adjust(geo_comm$partial_p, method = "BH")
 write.csv(geo_comm, "D:/TCGA_Sarcoma_Analysis/ACTA2/output/GEO_communication_pcor_check.csv",
           row.names = FALSE)
-
-# ============== TCGA 区室化纯度==============
 library(SummarizedExperiment); library(dplyr); library(ppcor)
 data <- readRDS("D:/TCGA_Sarcoma_Analysis/ACTA2/data/TCGA-SARC_data.rds")
 expr <- assay(data, "tpm_unstrand")
@@ -739,7 +731,6 @@ if (max(overlap_x) > 0.5) {
   stop("xCell ")
 }
 
-# ----  ACTA2一致性校验 ----
 tcga_pur <- data.frame(sid = samp, ACTA2 = as.numeric(expr_gene["ACTA2", samp])) %>%
   left_join(est_tcga %>% dplyr::select(.sid, tumor_purity, gene_expr), by = c("sid"=".sid")) %>%
   left_join(xc_tcga %>% dplyr::select(.sid, Macrophage), by = c("sid"=".sid"))
@@ -797,10 +788,10 @@ library(tidyr)
 library(patchwork)
 
 out_dir <- "D:/TCGA_Sarcoma_Analysis/ACTA2/output"
-col_low  <- "#E74C3C"   # ACTA2-low 侧（与正文一致）
-col_high <- "#2E86C1"   # ACTA2-high 侧
+col_low  <- "#E74C3C"  
+col_high <- "#2E86C1"  
 key6 <- c("CD86","HAVCR2","LGALS9","CD274","CD200","NECTIN3")
-s3      <- read.csv(file.path(out_dir, "Supplementary_Table_S3_ICB_single_gene.csv"))
+s3      <- read.csv(file.path(out_dir, "Supplementary_Table_S3.csv"))
 geo_cp  <- read.csv(file.path(out_dir, "GEO_compartment_purity_check.csv"))
 tcga_cp <- read.csv(file.path(out_dir, "TCGA_compartment_purity_check.csv"))
 
@@ -812,7 +803,7 @@ write.csv(s4,
 tcga_comm <- read.csv(file.path(out_dir, "TCGA_communication_pcor_check.csv"))
 geo_comm  <- read.csv(file.path(out_dir, "GEO_communication_pcor_check.csv"))
 s6 <- rbind(cbind(cohort = "TCGA-LMS", tcga_comm),            cbind(cohort = "GSE21050", geo_comm))
-rownames(s6) <- NULL   # 清掉 "rho/rho1..." 
+rownames(s6) <- NULL   
 write.csv(s6, file.path(out_dir, "Supplementary_Table_S6.csv"),
           row.names = FALSE)
 d8a <- bind_rows(
