@@ -27,7 +27,7 @@ To ensure robust and reproducible findings, this study integrated **dual bulk tr
 ```R
 # CRAN packages
 install.packages(c("dplyr", "ggplot2", "ggpubr", "ggrepel", "patchwork", 
-                   "tidyverse", "pheatmap", "ppcor", "cowplot"))
+                   "tidyverse", "pheatmap", "ppcor", "cowplot", "harmony"))
 
 if (!requireNamespace("BiocManager", quietly = TRUE))
   install.packages("BiocManager")
